@@ -120,6 +120,5 @@
         </table>
     </form>
 
-    <p><a href="index.jsp">← Volver al menú principal</a></p>
 </body>
 </html>
