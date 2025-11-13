@@ -73,6 +73,7 @@
        <th>Hora Inicio</th>
        <th>Hora Fin</th>
        <th>Materia</th>
+       <th></th>
      </tr>
      <% for (Horario h : lista) { %>
        <tr>

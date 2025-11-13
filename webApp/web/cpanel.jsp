@@ -2,9 +2,16 @@
 <%@ page import="modelo.Conexion" %>
 
 <%
+    //  Evitar que las páginas se guarden en caché
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+    response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+    response.setDateHeader("Expires", 0); // Proxies
+
     // Recuperar la sesión del usuario
     HttpSession sesion_cli = request.getSession(false);
     String nUsuario = (String) (sesion_cli != null ? sesion_cli.getAttribute("nUsuario") : null);
+
+    // Si no hay sesión activa → redirigir al login
 
     if (nUsuario == null) {
         response.sendRedirect("index.jsp");

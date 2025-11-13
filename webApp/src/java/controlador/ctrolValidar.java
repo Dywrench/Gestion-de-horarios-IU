@@ -47,7 +47,7 @@ sesion_cli.setAttribute("nUsuario", request.getParameter("cusuario"));
 request.getRequestDispatcher("cpanel.jsp").forward(request, response);
 }
 else {
-request.getRequestDispatcher("index.jsp").forward(request, response);
+request.getRequestDispatcher("mensajeNoRegistrado.jsp").forward(request, response); 
 }
 }else{
 request.getRequestDispatcher("index.jsp").forward(request, response);

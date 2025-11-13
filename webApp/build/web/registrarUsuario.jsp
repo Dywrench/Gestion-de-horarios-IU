@@ -148,7 +148,5 @@
         </div>
     </form>
 
-    <a href="index.jsp">← Volver al menú principal</a>
-
 </body>
 </html>
