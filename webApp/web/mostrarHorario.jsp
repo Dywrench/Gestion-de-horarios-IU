@@ -81,6 +81,10 @@
          <td><%=h.getHoraInicio()%></td>
          <td><%=h.getHoraFin()%></td>
          <td><%=h.getMateria()%></td>
+         <td>
+    <a href="HorarioServlet?accion=editar&id=<%=h.getId()%>">Editar</a>
+        </td>
+
        </tr>
      <% } %>
    </table>

@@ -2,14 +2,13 @@ package controlador;
 
 import modelo.HorarioDAO;
 import modelo.Horario;
-import modelo.Usuario;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 @WebServlet("/HorarioServlet")
 public class HorarioServlet extends HttpServlet {
@@ -19,12 +18,6 @@ public class HorarioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        HttpSession sesion = request.getSession(false);
-        if (sesion == null || sesion.getAttribute("nUsuario") == null) {
-            response.sendRedirect("index.jsp");
-            return;
-        }
 
         String accion = request.getParameter("accion");
         if (accion == null) accion = "listar";
@@ -36,15 +29,14 @@ public class HorarioServlet extends HttpServlet {
 
             case "editar":
                 try {
-                    int idEditar = Integer.parseInt(request.getParameter("id"));
-                    Horario h = dao.obtenerPorId(idEditar);
+                    int id = Integer.parseInt(request.getParameter("id"));
+                    Horario h = dao.obtenerPorId(id);
                     if (h == null) {
-                        request.setAttribute("mensajeError", "No se encontró el horario solicitado.");
-                        request.getRequestDispatcher("mostrarHorario.jsp").forward(request, response);
+                        response.sendRedirect("HorarioServlet?accion=listar");
                         return;
                     }
                     request.setAttribute("horario", h);
-                    request.getRequestDispatcher("registrarHorario.jsp").forward(request, response);
+                    request.getRequestDispatcher("editarHorario.jsp").forward(request, response);
                 } catch (NumberFormatException e) {
                     response.sendRedirect("HorarioServlet?accion=listar");
                 }
@@ -52,16 +44,17 @@ public class HorarioServlet extends HttpServlet {
 
             case "eliminar":
                 try {
-                    int idEliminar = Integer.parseInt(request.getParameter("id"));
-                    dao.eliminar(idEliminar);
+                    int id = Integer.parseInt(request.getParameter("id"));
+                    dao.eliminar(id);
                 } catch (NumberFormatException e) {
-                    System.out.println("⚠️ ID inválido para eliminar horario.");
+                    System.out.println("ID inválido para eliminar horario.");
                 }
                 response.sendRedirect("HorarioServlet?accion=listar");
                 break;
 
             default: // listar
-                request.setAttribute("lista", dao.listarTodos());
+                List<Horario> lista = dao.listarTodos();
+                request.setAttribute("lista", lista);
                 request.getRequestDispatcher("mostrarHorario.jsp").forward(request, response);
                 break;
         }
@@ -87,8 +80,10 @@ public class HorarioServlet extends HttpServlet {
 
         boolean exito;
         if (id == null || id.isEmpty()) {
+            // Registrar nuevo horario
             exito = dao.registrarHorario(h);
         } else {
+            // Actualizar horario existente
             try {
                 h.setId(Integer.parseInt(id));
                 exito = dao.actualizar(h);
@@ -100,8 +95,13 @@ public class HorarioServlet extends HttpServlet {
         if (exito) {
             response.sendRedirect("HorarioServlet?accion=listar");
         } else {
-            request.setAttribute("mensajeError", "❌ No se pudo guardar el horario.");
-            request.getRequestDispatcher("registrarHorario.jsp").forward(request, response);
+            request.setAttribute("mensajeError", "No se pudo guardar el horario.");
+            if (id == null || id.isEmpty()) {
+                request.getRequestDispatcher("registrarHorario.jsp").forward(request, response);
+            } else {
+                request.setAttribute("horario", h);
+                request.getRequestDispatcher("editarHorario.jsp").forward(request, response);
+            }
         }
     }
 }
