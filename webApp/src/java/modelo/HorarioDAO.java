@@ -62,33 +62,45 @@ public class HorarioDAO {
     }
 
     // ✅ Obtener un horario por ID
-    public Horario obtenerPorId(int id) {
-        Horario h = null;
-        String sql = "SELECT * FROM horario WHERE id = ?";
+  public Horario obtenerPorId(int id) {
+    Conexion cn = new Conexion();   // se crea el objeto de conexión
+    Connection con = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    Horario h = null;
 
-        try {
-            Conexion cn = new Conexion();
-            con = cn.crearConexion();
-            ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
-            rs = ps.executeQuery();
+    String sql = "SELECT * FROM horario WHERE id = ?";
 
-            if (rs.next()) {
-                h = new Horario();
-                h.setId(rs.getInt("id"));
-                h.setDia(rs.getString("dia"));
-                h.setHoraInicio(rs.getString("hora_inicio"));
-                h.setHoraFin(rs.getString("hora_fin"));
-                h.setMateria(rs.getString("materia"));
-            }
-        } catch (SQLException e) {
-            System.out.println("❌ Error al obtener horario: " + e.getMessage());
-        } finally {
-            cerrarRecursos();
+    try {
+        con = cn.crearConexion();  // aquí llamas al método de tu clase Conexion
+        ps = con.prepareStatement(sql);
+        ps.setInt(1, id);
+        rs = ps.executeQuery();
+
+        if (rs.next()) {
+            h = new Horario();
+            h.setId(rs.getInt("id"));
+            h.setDia(rs.getString("dia"));
+            h.setHoraInicio(rs.getString("hora_inicio"));
+            h.setHoraFin(rs.getString("hora_fin"));
+            h.setMateria(rs.getString("materia"));
         }
 
-        return h;
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (con != null) con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    return h;
+}
+
 
     // ✅ Actualizar horario existente
     public boolean actualizar(Horario h) {
@@ -112,23 +124,28 @@ public class HorarioDAO {
         }
     }
 
-    // ✅ Eliminar horario por ID
     public boolean eliminar(int id) {
-        String sql = "DELETE FROM horario WHERE id = ?";
+        Conexion cn = new Conexion();
+        Connection con;
+        PreparedStatement ps;
+
         try {
-            Conexion cn = new Conexion();
             con = cn.crearConexion();
+            String sql = "DELETE FROM horario WHERE id = ?";
             ps = con.prepareStatement(sql);
             ps.setInt(1, id);
-            ps.executeUpdate();
-            return true;
+
+            int filas = ps.executeUpdate();
+            con.close();
+
+            return filas > 0; // Devuelve true si se eliminó al menos un registro
         } catch (SQLException e) {
-            System.out.println("❌ Error al eliminar horario: " + e.getMessage());
+            System.out.println("Error al eliminar horario: " + e.getMessage());
             return false;
-        } finally {
-            cerrarRecursos();
         }
     }
+
+
 
     private void cerrarRecursos() {
         try {

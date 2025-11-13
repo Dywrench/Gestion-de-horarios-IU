@@ -1,134 +1,112 @@
+<%@page import="java.util.List"%>
 <%@page import="modelo.Horario"%>
+<%@page import="modelo.HorarioDAO"%>
+<%@page import="modelo.Usuario"%>
+<%@page import="modelo.UsuarioDAO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Editar Horario</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f3f4f6;
-        margin: 0;
-        padding: 40px;
+  <meta charset="UTF-8">
+  <title>Editar Horario</title>
+  <style>
+    body { 
+        font-family: Arial, sans-serif; 
+        background-color: #f3f4f6; 
+        margin: 0; 
+        padding: 40px; 
     }
-
-    .container {
-        background: #fff;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 30px 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    .container { 
+        background: #fff; 
+        max-width: 900px; 
+        margin: 0 auto; 
+        padding: 25px 40px; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
     }
-
-    h2 {
-        text-align: center;
-        color: #92400e;
-        margin-top: 0;
-        margin-bottom: 25px;
+    h2 { 
+        text-align: center; 
+        color: #065f46; 
     }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 15px; 
     }
-
-    td {
-        padding: 10px;
-        vertical-align: middle;
+    th, td { 
+        padding: 10px; 
+        border-bottom: 1px solid #e5e7eb; 
+        text-align: center; 
     }
-
-    input[type="text"],
-    input[type="time"] {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        box-sizing: border-box;
+    th { 
+        background-color: #10b981; 
+        color: white; 
     }
-
-    input[type="submit"],
-    input[type="button"] {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
-        margin: 10px 5px 0 5px;
-        font-weight: bold;
+    tr:nth-child(even) { 
+        background: #f9fafb; 
     }
-
-    input[type="submit"] {
-        background: #f59e0b;
-    }
-
-    input[type="button"] {
-        background: #6b7280;
-    }
-
-    input[type="submit"]:hover {
-        background: #b45309;
-    }
-
-    input[type="button"]:hover {
-        background: #4b5563;
-    }
-
-    .error {
-        color: red;
-        text-align: center;
-        margin-bottom: 15px;
-        font-weight: bold;
-    }
-</style>
+  </style>
 </head>
 <body>
 
 <%
-    Horario h = (Horario) request.getAttribute("horario");
-    if (h == null) {
-        response.sendRedirect("HorarioServlet?accion=listar");
+    // Verificar sesión
+    HttpSession sesion = request.getSession(false);
+    if (sesion == null || sesion.getAttribute("nUsuario") == null) {
+        response.sendRedirect("index.jsp");
         return;
     }
-    String mensajeError = (String) request.getAttribute("mensajeError");
+
+    String nUsuario = (String) sesion.getAttribute("nUsuario");
+
+    // Obtener el rol del usuario
+    UsuarioDAO udao = new UsuarioDAO();
+  Usuario usuario = udao.obtenerUsuarioPorUsername(nUsuario);
+  int idPerfil = (usuario != null) ? usuario.getIdperfil() : 3; // Por defecto estudiante
+
+
+
+    // Cargar horarios
+    HorarioDAO hdao = new HorarioDAO();
+    List<Horario> lista = hdao.listarTodos();
 %>
 
 <div class="container">
-    <h2>Editar Horario</h2>
+  <h2>Horario General</h2>
 
-    <% if (mensajeError != null) { %>
-        <p class="error"><%= mensajeError %></p>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Día</th>
+      <th>Hora Inicio</th>
+      <th>Hora Fin</th>
+      <th>Materia</th>
+      <% if (idPerfil == 1 || idPerfil == 2) { %> 
+        <th>Acciones</th>
+      <% } %>
+    </tr>
+
+    <% for (Horario h : lista) { %>
+      <tr>
+        <td><%= h.getId() %></td>
+        <td><%= h.getDia() %></td>
+        <td><%= h.getHoraInicio() %></td>
+        <td><%= h.getHoraFin() %></td>
+        <td><%= h.getMateria() %></td>
+
+        <% if (idPerfil == 1 || idPerfil == 2) { %> 
+          <td>
+            <a href="HorarioServlet?accion=editar&id=<%= h.getId() %>">Editar</a> |
+            <a href="HorarioServlet?accion=eliminar&id=<%= h.getId() %>" 
+               onclick="return confirm('¿Estás seguro de que deseas eliminar este horario?');">
+               Eliminar
+            </a>
+          </td>
+        <% } %>
+      </tr>
     <% } %>
+  </table>
 
-    <form method="post" action="HorarioServlet">
-        <input type="hidden" name="id" value="<%= h.getId() %>"/>
-
-        <table>
-            <tr>
-                <td><label for="dia">Día:</label></td>
-                <td><input type="text" id="dia" name="dia" value="<%= h.getDia() %>" required/></td>
-            </tr>
-            <tr>
-                <td><label for="horaInicio">Hora Inicio:</label></td>
-                <td><input type="time" id="horaInicio" name="horaInicio" value="<%= h.getHoraInicio() %>" required/></td>
-            </tr>
-            <tr>
-                <td><label for="horaFin">Hora Fin:</label></td>
-                <td><input type="time" id="horaFin" name="horaFin" value="<%= h.getHoraFin() %>" required/></td>
-            </tr>
-            <tr>
-                <td><label for="materia">Materia:</label></td>
-                <td><input type="text" id="materia" name="materia" value="<%= h.getMateria() %>" required/></td>
-            </tr>
-            <tr>
-                <td colspan="2" style="text-align: center;">
-                    <input type="submit" value="Actualizar"/>
-                    <input type="button" value="Cancelar" onclick="window.location='HorarioServlet?accion=listar'"/>
-                </td>
-            </tr>
-        </table>
-    </form>
 </div>
 
 </body>

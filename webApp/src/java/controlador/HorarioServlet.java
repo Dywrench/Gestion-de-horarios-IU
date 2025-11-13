@@ -20,13 +20,20 @@ public class HorarioServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String accion = request.getParameter("accion");
-        if (accion == null) accion = "listar";
+        if (accion == null) {
+            accion = "listar";
+        }
 
         switch (accion) {
             case "nuevo":
                 request.getRequestDispatcher("registrarHorario.jsp").forward(request, response);
                 break;
-
+            case "listar":
+                // ✅ Mostrar lista de horarios
+                List<Horario> lista = dao.listarTodos();
+                request.setAttribute("listaHorarios", lista);
+                request.getRequestDispatcher("mostrarHorario.jsp").forward(request, response);
+                break;
             case "editar":
                 try {
                     int id = Integer.parseInt(request.getParameter("id"));
@@ -44,19 +51,40 @@ public class HorarioServlet extends HttpServlet {
 
             case "eliminar":
                 try {
+                    // Verificar permisos según el rol
+                    javax.servlet.http.HttpSession sesion = request.getSession(false);
+                    if (sesion == null || sesion.getAttribute("nUsuario") == null) {
+                        response.sendRedirect("index.jsp");
+                        return;
+                    }
+
+                    modelo.UsuarioDAO udao = new modelo.UsuarioDAO();
+                    String nUsuario = (String) sesion.getAttribute("nUsuario");
+                    modelo.Usuario usuario = udao.obtenerUsuarioPorUsername(nUsuario);
+                    int idPerfil = (usuario != null) ? usuario.getIdperfil() : 3;
+
+                    // Solo admin (1) o docente (2) pueden eliminar
+                    if (idPerfil != 1 && idPerfil != 2) {
+                        response.sendRedirect("HorarioServlet?accion=listar");
+                        return;
+                    }
+
                     int id = Integer.parseInt(request.getParameter("id"));
-                    dao.eliminar(id);
+                    boolean eliminado = dao.eliminar(id);
+
+                    if (eliminado) {
+                        System.out.println("✅ Horario eliminado correctamente.");
+                    } else {
+                        System.out.println("⚠️ No se pudo eliminar el horario (posiblemente no existe).");
+                    }
+
                 } catch (NumberFormatException e) {
-                    System.out.println("ID inválido para eliminar horario.");
+                    System.out.println("ID inválido para eliminar horario: " + e.getMessage());
                 }
+
                 response.sendRedirect("HorarioServlet?accion=listar");
                 break;
 
-            default: // listar
-                List<Horario> lista = dao.listarTodos();
-                request.setAttribute("lista", lista);
-                request.getRequestDispatcher("mostrarHorario.jsp").forward(request, response);
-                break;
         }
     }
 

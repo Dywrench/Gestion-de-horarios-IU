@@ -81,10 +81,10 @@
       <th>Hora Inicio</th>
       <th>Hora Fin</th>
       <th>Materia</th>
-     <% if (idPerfil == 1 || idPerfil == 2) { %> 
-    <th>Acciones</th>
-     <% } %>
-
+      <% if (idPerfil == 1 || idPerfil == 2) { %> 
+        <th>Acciones</th>
+      <% } %>
+    </tr>
 
     <% for (Horario h : lista) { %>
       <tr>
@@ -96,12 +96,17 @@
 
         <% if (idPerfil == 1 || idPerfil == 2) { %> 
           <td>
-            <a href="HorarioServlet?accion=editar&id=<%= h.getId() %>">Editar</a>
+            <a href="HorarioServlet?accion=editar&id=<%= h.getId() %>">Editar</a> |
+            <a href="HorarioServlet?accion=eliminar&id=<%= h.getId() %>" 
+               onclick="return confirm('¿Estás seguro de que deseas eliminar este horario?');">
+               Eliminar
+            </a>
           </td>
         <% } %>
       </tr>
     <% } %>
   </table>
+
 </div>
 
 </body>
