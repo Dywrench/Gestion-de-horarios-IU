@@ -30,7 +30,7 @@
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 9px;
         }
 
         label {
@@ -139,7 +139,7 @@
 
         <div class="form-group">
             <label for="cidperfil">Perfil (ID)</label>
-            <input type="number" id="cidperfil" name="cidperfil" placeholder="1=Admin, 2=Usuario" required>
+            <input type="number" id="cidperfil" name="cidperfil" placeholder="1=Admin, 2=Profesor, 3=Estudiante" required>
         </div>
 
         <div class="btn-group">

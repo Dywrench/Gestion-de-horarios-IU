@@ -31,7 +31,7 @@
     td {
       padding: 10px;
     }
-    input[type="text"], input[type="time"] {
+    select, input[type="time"] {
       width: 100%;
       padding: 8px;
       border: 1px solid #ccc;
@@ -74,14 +74,40 @@
    <form method="post" action="HorarioServlet">
      <input type="hidden" name="accion" value="insertar"/>
      <table>
-       <tr><td>Día:</td><td><input type="text" name="dia" required/></td></tr>
+       <tr>
+         <td>Día:</td>
+         <td>
+           <select name="dia" required>
+             <option value="">Seleccione un día</option>
+             <option value="Lunes">Lunes</option>
+             <option value="Martes">Martes</option>
+             <option value="Miércoles">Miércoles</option>
+             <option value="Jueves">Jueves</option>
+             <option value="Viernes">Viernes</option>
+           </select>
+         </td>
+       </tr>
        <tr><td>Hora Inicio:</td><td><input type="time" name="horaInicio" required/></td></tr>
        <tr><td>Hora Fin:</td><td><input type="time" name="horaFin" required/></td></tr>
-       <tr><td>Materia:</td><td><input type="text" name="materia" required/></td></tr>
+       <tr>
+         <td>Materia:</td>
+         <td>
+           <select name="materia" required>
+             <option value="">Seleccione una materia</option>
+             <option value="Matemáticas">Matemáticas</option>
+             <option value="Programación">Programación</option>
+             <option value="Bases de Datos">Bases de Datos</option>
+             <option value="Ingeniería de Software">Ingeniería de Software</option>
+             <option value="Sistemas Operativos">Sistemas Operativos</option>
+             <option value="Redes">Redes</option>
+             <option value="Ética Profesional">Ética Profesional</option>
+           </select>
+         </td>
+       </tr>
        <tr>
          <td colspan="2" style="text-align:center;">
            <input type="submit" value="Registrar"/>
-           <input type="button" value="Cancelar" onclick="window.location='verHorarios.jsp'"/>
+           <input type="button" value="Cancelar" onclick="window.location='mostrarHorario.jsp'"/>
          </td>
        </tr>
      </table>

@@ -61,7 +61,7 @@
 
     /* Header */
     #header {
-        width: 100%;
+        width: 98%;
         height: 60px;
         background-color: #007bff;
         color: white;

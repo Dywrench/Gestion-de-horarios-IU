@@ -24,7 +24,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 10px;
             background-color: #f5f5f5;
         }
         .container {
